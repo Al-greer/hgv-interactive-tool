@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>40 t HGV Electrification Interactive Tool</title>
+<style>
+:root{--blue:#002147;--red:#d50032;--ink:#172033;--muted:#5d6878;--panel:#ffffff;--soft:#f3f6fb;--line:#d7deea;--green:#0f766e;--orange:#c2410c;--purple:#4338ca;}
+*{box-sizing:border-box} body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#eef2f7;color:var(--ink)}
+header{background:linear-gradient(135deg,var(--blue),#1d4b7d);color:#fff;padding:18px 22px 12px;position:sticky;top:0;z-index:10;box-shadow:0 3px 12px rgba(0,0,0,.12)}
+header .top{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:flex-end} h1{margin:0;font-size:26px} .subtitle{font-size:13px;opacity:.9;margin-top:4px}
+.namebox{text-align:right;font-size:14px}.namebox strong{display:block;font-size:18px}
+.nav{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.nav button,.btn{border:none;border-radius:999px;padding:8px 12px;cursor:pointer;font-size:13px}.nav button{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.28)}.nav button.active{background:#fff;color:var(--blue);font-weight:700}.btn{background:#fff;color:var(--blue);font-weight:700}
+main{max-width:1400px;margin:16px auto 28px;padding:0 16px}.grid{display:grid;grid-template-columns:320px 1fr;gap:18px;align-items:start}.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:0 6px 18px rgba(16,24,40,.06)}
+.controls{padding:16px;position:sticky;top:126px}.controls h2,.slide h2{margin:0 0 8px;color:var(--blue)}.controls p{margin:0 0 12px;color:var(--muted);font-size:13px}.cg{margin:14px 0}.cg label{display:flex;justify-content:space-between;gap:10px;font-weight:700;font-size:14px}.cg input{width:100%;margin-top:8px}.meta{font-size:11px;color:var(--muted);margin-top:4px}.mini{display:grid;grid-template-columns:1fr 1fr;gap:10px}.mini>div{background:var(--soft);border:1px solid var(--line);padding:10px;border-radius:12px}.mini .k{font-size:11px;color:var(--muted)}.mini .v{font-size:18px;font-weight:800;color:var(--blue);margin-top:3px}
+.slides{min-height:760px}.slide{display:none;padding:20px}.slide.active{display:block}.lead{margin:4px 0 14px;color:var(--muted);font-size:14px}.cg2{display:grid;grid-template-columns:1.05fr .95fr;gap:16px}.panel{border:1px solid var(--line);border-radius:14px;padding:14px;background:#fff}.panel h3{margin:0 0 10px;color:var(--blue);font-size:17px}.equation{background:#0f172a;color:#fff;border-radius:14px;padding:14px;font-size:24px;font-family:"Times New Roman",serif;overflow:auto}.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.metric{background:var(--soft);border:1px solid var(--line);border-radius:14px;padding:14px}.metric .l{font-size:12px;color:var(--muted)}.metric .v{font-size:26px;font-weight:800;color:var(--blue);margin-top:6px}.metric .c{font-size:11px;color:var(--muted);margin-top:4px}
+.plot{border:1px solid var(--line);border-radius:14px;padding:10px;background:#fff} table{width:100%;border-collapse:collapse;font-size:14px} th,td{border:1px solid var(--line);padding:8px 10px;text-align:left} th{background:#eef2f7}.truck{background:#fbfcfe;border:1px solid var(--line);border-radius:14px;padding:10px}.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;font-size:12px;color:var(--muted)}.legend span::before{content:"";display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-2px}.lr::before{background:#0f766e}.la::before{background:#4338ca}.lg::before{background:#c2410c}.lt::before{background:#d50032}
+.flow{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;align-items:center}.node{border:2px solid var(--line);border-radius:12px;padding:12px;background:#fff;text-align:center;min-height:92px}.node .t{font-size:12px;color:var(--muted);margin-top:8px}.arr{text-align:center;font-size:28px;color:var(--blue)}
+.options{display:flex;gap:10px;flex-wrap:wrap}.option{border:1px solid var(--line);border-radius:999px;padding:8px 14px;cursor:pointer;background:#fff}.option.selected{background:var(--blue);color:#fff;border-color:var(--blue)} .fb{font-size:12px;color:var(--muted);margin-top:8px}
+.slideNav{display:flex;justify-content:space-between;margin-top:18px}.slideNav button{border:none;background:var(--blue);color:#fff;padding:10px 14px;border-radius:10px;cursor:pointer}.slideNav button:disabled{background:#9aa7b8}
+.badge{display:inline-block;padding:5px 9px;border-radius:999px;background:#edf2ff;color:var(--blue);font-size:12px;font-weight:700}
+.qrbox{display:flex;gap:16px;align-items:center;flex-wrap:wrap}.qrbox img{width:130px;height:130px;border:1px solid var(--line);border-radius:10px;background:#fff;padding:6px}
+.smalllist{display:grid;grid-template-columns:1fr 1fr;gap:10px}.smalllist div{background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:10px}
+.pill{display:inline-block;padding:4px 10px;border-radius:999px;background:#f3f4f6;font-size:12px;margin:0 6px 6px 0}
+svg{width:100%;height:auto;display:block}
+@media (max-width:1100px){.grid{grid-template-columns:1fr}.controls{position:relative;top:auto}.cg2{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,1fr)}.flow{grid-template-columns:1fr}.arr{transform:rotate(90deg)}}
+@media (max-width:680px){.metrics{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <div class="top">
+    <div>
+      <h1>40 t HGV Electrification Interactive Tool</h1>
+      <div class="subtitle">Lecture companion for road load, power, battery, charging, machines, drives and engineering judgement.</div>
+    </div>
+    <div class="namebox"><strong>Dr Maher Al-Greer</strong><span>Interactive Teaching Tool</span></div>
+  </div>
+  <div class="nav" id="topNav"></div>
+  <div style="margin-top:12px"><button class="btn" onclick="resetDefaults()">Reset to lecture defaults</button></div>
+</header>
+<main>
+  <div class="grid">
+    <aside class="card controls">
+      <h2>Lecture assumptions</h2>
+      <p>Change any input and all tables, plots and slide views update instantly.</p>
+      <div class="cg"><label><span>Mass, m</span><strong id="massVal"></strong></label><input id="mass" type="range" min="20000" max="50000" step="500" value="40000"><div class="meta">gross vehicle mass</div></div>
+      <div class="cg"><label><span>Rolling coefficient, Crr</span><strong id="crrVal"></strong></label><input id="crr" type="range" min="0.003" max="0.012" step="0.0005" value="0.006"><div class="meta">tyre / road dependent</div></div>
+      <div class="cg"><label><span>Drag area, CdA</span><strong id="cdaVal"></strong></label><input id="cda" type="range" min="3.5" max="8.0" step="0.1" value="5.5"><div class="meta">combined aerodynamic parameter</div></div>
+      <div class="cg"><label><span>Air density, ρ</span><strong id="rhoVal"></strong></label><input id="rho" type="range" min="1.0" max="1.35" step="0.01" value="1.2"><div class="meta">kg/m³</div></div>
+      <div class="cg"><label><span>Cruise speed, v</span><strong id="speedVal"></strong></label><input id="speed" type="range" min="30" max="110" step="1" value="80"><div class="meta">km/h</div></div>
+      <div class="cg"><label><span>Gradient</span><strong id="gradeVal"></strong></label><input id="grade" type="range" min="0" max="12" step="0.5" value="0"><div class="meta">road grade (%)</div></div>
+      <div class="cg"><label><span>Battery → wheel efficiency, η</span><strong id="etaVal"></strong></label><input id="eta" type="range" min="0.75" max="0.95" step="0.01" value="0.85"><div class="meta">drivetrain efficiency</div></div>
+      <div class="cg"><label><span>Usable SoC window</span><strong id="socWindowVal"></strong></label><input id="socWindow" type="range" min="0.6" max="0.9" step="0.02" value="0.8"><div class="meta">fraction of installed battery usable</div></div>
+      <div class="cg"><label><span>Pack specific energy</span><strong id="specEnergyVal"></strong></label><input id="specEnergy" type="range" min="0.10" max="0.25" step="0.005" value="0.15"><div class="meta">kWh/kg at pack level</div></div>
+      <div class="cg"><label><span>Mission leg</span><strong id="missionKmVal"></strong></label><input id="missionKm" type="range" min="100" max="800" step="10" value="360"><div class="meta">km between charging opportunities</div></div>
+      <div class="cg"><label><span>Break time</span><strong id="breakTimeVal"></strong></label><input id="breakTime" type="range" min="15" max="90" step="5" value="45"><div class="meta">minutes</div></div>
+      <div class="cg"><label><span>DC-link voltage</span><strong id="dcBusVal"></strong></label><input id="dcBus" type="range" min="400" max="1250" step="50" value="800"><div class="meta">volts</div></div>
+      <div class="mini"><div><div class="k">Default case</div><div class="v">40 t</div></div><div><div class="k">Mission leg</div><div class="v" id="missionMini"></div></div></div>
+    </aside>
+
+    <section class="card slides">
+      <div class="slide active" id="slide-0">
+        <h2>1. Opening screen</h2>
+        <div class="lead">A single QR scan opens the tool and lets students test the assumptions live.</div>
+        <div class="metrics">
+          <div class="metric"><div class="l">Vehicle mass</div><div class="v" id="hookMass"></div><div class="c">gross combination</div></div>
+          <div class="metric"><div class="l">Mission leg</div><div class="v" id="hookRange"></div><div class="c">between charges</div></div>
+          <div class="metric"><div class="l">Cruise speed</div><div class="v" id="hookSpeed"></div><div class="c">worked example</div></div>
+          <div class="metric"><div class="l">Break available</div><div class="v" id="hookBreak"></div><div class="c">charging window</div></div>
+        </div>
+        <div class="cg2" style="margin-top:16px;">
+          <div class="panel">
+            <h3>Engineering question</h3>
+            <div class="equation" style="font-size:28px;text-align:center">What limits electrification first:<br>power, energy, payload, or charging?</div>
+            <div style="margin-top:14px" class="smalllist">
+              <div><strong>Interactive</strong><br>sliders, plots, calculations and mini slide views</div>
+              <div><strong>Use</strong><br>whiteboard first, then test assumptions live</div>
+            </div>
+          </div>
+          <div class="panel">
+            <h3>Scan to open</h3>
+            <div class="qrbox">
+              <img src="hgv_interactive_qr.png" alt="QR code">
+              <div>
+                <div class="badge">QR access</div>
+                <p style="margin:10px 0 6px">Open on phone, tablet or laptop.</p>
+                <p style="margin:0;color:var(--muted);font-size:13px">QR currently points to the review link version of this tool and can be regenerated once you host the final page.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="slideNav"><button disabled>◀ Previous</button><button onclick="goToSlide(1)">Next ▶</button></div>
+      </div>
+
+      <div class="slide" id="slide-1">
+        <h2>2. Road-load equation</h2>
+        <div class="lead">Steady-speed demonstration with adjustable gradient.</div>
+        <div class="equation">F<sub>tr</sub> = m g C<sub>rr</sub> cos θ + ½ ρ C<sub>d</sub>A v² + m g sin θ + m(1+δ) dv/dt</div>
+        <div class="cg2" style="margin-top:16px;">
+          <div class="panel">
+            <h3>Current operating point</h3>
+            <table>
+              <tr><th>Term</th><th>Equation</th><th>Value</th></tr>
+              <tr><td>Rolling</td><td>m g C<sub>rr</sub> cos θ</td><td id="tRolling"></td></tr>
+              <tr><td>Aerodynamic</td><td>½ ρ C<sub>d</sub>A v²</td><td id="tAero"></td></tr>
+              <tr><td>Gradient</td><td>m g sin θ</td><td id="tGrade"></td></tr>
+              <tr><td>Inertia</td><td>m(1+δ) dv/dt</td><td>0.00 kN</td></tr>
+              <tr><th>Total</th><th colspan="2" id="tTotal"></th></tr>
+            </table>
+          </div>
+          <div class="panel">
+            <h3>Force directions</h3>
+            <div class="truck">
+              <svg viewBox="0 0 640 250" id="forceSvg">
+                <line x1="20" y1="210" x2="620" y2="210" stroke="#333" stroke-width="4"/>
+                <rect x="140" y="110" width="230" height="65" rx="8" fill="#163a68"/>
+                <rect x="370" y="128" width="90" height="47" rx="8" fill="#163a68"/>
+                <circle cx="190" cy="185" r="18" fill="#111827"/><circle cx="330" cy="185" r="18" fill="#111827"/><circle cx="430" cy="185" r="18" fill="#111827"/>
+                <circle cx="190" cy="185" r="8" fill="#d1d5db"/><circle cx="330" cy="185" r="8" fill="#d1d5db"/><circle cx="430" cy="185" r="8" fill="#d1d5db"/>
+                <text x="255" y="148" fill="white" font-size="24" text-anchor="middle">m</text>
+                <g><line x1="420" y1="90" x2="560" y2="90" stroke="#d50032" stroke-width="5" marker-end="url(#arRed)"/><text x="490" y="74" font-size="20" fill="#d50032" text-anchor="middle">F_tr</text></g>
+                <g><line x1="175" y1="225" x2="60" y2="225" stroke="#0f766e" stroke-width="5" marker-end="url(#arGreen)"/><text x="118" y="244" font-size="18" fill="#0f766e" text-anchor="middle">F_roll</text></g>
+                <g><line x1="455" y1="42" x2="335" y2="42" stroke="#4338ca" stroke-width="5" marker-end="url(#arBlue)"/><text x="390" y="28" font-size="18" fill="#4338ca" text-anchor="middle">F_aero</text></g>
+                <g><line x1="300" y1="80" x2="300" y2="165" stroke="#111" stroke-width="5" marker-end="url(#arBlack)"/><text x="315" y="124" font-size="18" fill="#111">W = mg</text></g>
+                <g><line x1="300" y1="215" x2="300" y2="125" stroke="#111" stroke-width="5" marker-end="url(#arBlack)"/><text x="315" y="180" font-size="18" fill="#111">N</text></g>
+                <g id="arrGrade" style="display:none"><line x1="500" y1="160" x2="590" y2="160" stroke="#c2410c" stroke-width="5" marker-end="url(#arOrange)"/><text x="545" y="145" font-size="18" fill="#c2410c" text-anchor="middle">F_grad</text></g>
+                <defs>
+                  <marker id="arRed" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><polygon points="0 0,10 3,0 6" fill="#d50032"/></marker>
+                  <marker id="arGreen" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><polygon points="0 0,10 3,0 6" fill="#0f766e"/></marker>
+                  <marker id="arBlue" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><polygon points="0 0,10 3,0 6" fill="#4338ca"/></marker>
+                  <marker id="arBlack" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><polygon points="0 0,10 3,0 6" fill="#111"/></marker>
+                  <marker id="arOrange" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><polygon points="0 0,10 3,0 6" fill="#c2410c"/></marker>
+                </defs>
+              </svg>
+              <div class="legend"><span class="lr">rolling</span><span class="la">aerodynamic</span><span class="lg">gradient</span><span class="lt">tractive</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="slideNav"><button onclick="goToSlide(0)">◀ Previous</button><button onclick="goToSlide(2)">Next ▶</button></div>
+      </div>
+
+      <div class="slide" id="slide-2">
+        <h2>3. Force curves and power</h2>
+        <div class="lead">Current gradient applies to the plotted total-force curve.</div>
+        <div class="cg2">
+          <div class="plot"><svg viewBox="0 0 640 360" id="forcePlot"></svg></div>
+          <div class="panel">
+            <h3>Current cruise point</h3>
+            <div class="metrics" style="grid-template-columns:repeat(2,1fr)">
+              <div class="metric"><div class="l">Rolling share</div><div class="v" id="rollShare"></div></div>
+              <div class="metric"><div class="l">Aerodynamic share</div><div class="v" id="aeroShare"></div></div>
+              <div class="metric"><div class="l">Power at wheels</div><div class="v" id="wheelPower"></div></div>
+              <div class="metric"><div class="l">Power at +1% grade</div><div class="v" id="plus1Power"></div></div>
+            </div>
+            <div style="margin-top:14px">
+              <span class="pill">rolling scales with mass</span>
+              <span class="pill">aero scales with v²</span>
+              <span class="pill">power scales with F·v</span>
+              <span class="pill">hills act on full weight</span>
+            </div>
+          </div>
+        </div>
+        <div class="slideNav"><button onclick="goToSlide(1)">◀ Previous</button><button onclick="goToSlide(3)">Next ▶</button></div>
+      </div>
+
+      <div class="slide" id="slide-3">
+        <h2>4. Force → power → energy per km</h2>
+        <div class="lead">The full worked chain can be followed line by line.</div>
+        <div class="cg2">
+          <div class="panel">
+            <h3>Step-by-step calculation</h3>
+            <table>
+              <tr><th>Step</th><th>Expression</th><th>Value</th></tr>
+              <tr><td>1. Total force</td><td>F = F_roll + F_aero + F_grad</td><td id="eForce"></td></tr>
+              <tr><td>2. Wheel power</td><td>P = F v</td><td id="ePower"></td></tr>
+              <tr><td>3. Wheel energy per km</td><td>E_wheel = F × 1 km</td><td id="eWheelMJ"></td></tr>
+              <tr><td>4. kWh per km at wheels</td><td>E / 3.6</td><td id="eWheelkWh"></td></tr>
+              <tr><td>5. Battery kWh per km</td><td>E_batt = E_wheel / η</td><td id="eBattkWh"></td></tr>
+            </table>
+          </div>
+          <div class="panel">
+            <h3>Compact view</h3>
+            <div class="metrics" style="grid-template-columns:1fr">
+              <div class="metric"><div class="l">Mechanical energy at wheels</div><div class="v" id="dispWheelMJ"></div><div class="c">per km</div></div>
+              <div class="metric"><div class="l">Mechanical energy in kWh</div><div class="v" id="dispWheelkWh"></div><div class="c">per km</div></div>
+              <div class="metric"><div class="l">Battery energy required</div><div class="v" id="dispBattkWh"></div><div class="c">per km</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="slideNav"><button onclick="goToSlide(2)">◀ Previous</button><button onclick="goToSlide(4)">Next ▶</button></div>
+      </div>
+
+      <div class="slide" id="slide-4">
+        <h2>5. Battery sizing and payload</h2>
+        <div class="lead">Battery size is linked to the selected mission leg and energy per kilometre.</div>
+        <div class="cg2">
+          <div class="panel">
+            <h3>Mission battery calculation</h3>
+            <table>
+              <tr><th>Quantity</th><th>Expression</th><th>Value</th></tr>
+              <tr><td>Mission leg</td><td>input</td><td id="mLeg"></td></tr>
+              <tr><td>Energy used</td><td>distance × battery energy/km</td><td id="mUsed"></td></tr>
+              <tr><td>Installed battery</td><td>usable energy / SoC window</td><td id="mInstalled"></td></tr>
+              <tr><td>Battery mass</td><td>installed kWh / specific energy</td><td id="mMass"></td></tr>
+            </table>
+            <div style="margin-top:14px" class="metrics" style="grid-template-columns:repeat(3,1fr)">
+              <div class="metric"><div class="l">Battery pack</div><div class="v" id="payBatt"></div><div class="c">added mass</div></div>
+              <div class="metric"><div class="l">Other EV hardware</div><div class="v">~1.0 t</div><div class="c">e-axle, inverter, cooling</div></div>
+              <div class="metric"><div class="l">ICE system removed</div><div class="v">~−2.0 t</div><div class="c">engine, gearbox, fuel, aftertreatment</div></div>
+            </div>
+          </div>
+          <div>
+            <div class="plot"><svg viewBox="0 0 640 360" id="batteryPlot"></svg></div>
+            <div class="panel" style="margin-top:14px"><h3>Net payload effect</h3><div class="equation" style="font-size:26px;text-align:center" id="netPayload"></div></div>
+          </div>
+        </div>
+        <div class="slideNav"><button onclick="goToSlide(3)">◀ Previous</button><button onclick="goToSlide(5)">Next ▶</button></div>
+      </div>
+
+      <div class="slide" id="slide-5">
+        <h2>6. Charging during the break</h2>
+        <div class="lead">The bar chart compares charging time against the available break.</div>
+        <div class="cg2">
+          <div class="panel">
+            <h3>Charging requirement</h3>
+            <table>
+              <tr><th>Quantity</th><th>Value</th></tr>
+              <tr><td>Energy to replace</td><td id="cEnergy"></td></tr>
+              <tr><td>Minimum charger power</td><td id="cPower"></td></tr>
+              <tr><td>C-rate</td><td id="cCrate"></td></tr>
+              <tr><td>Current at DC-link voltage</td><td id="cCurrent"></td></tr>
+            </table>
+          </div>
+          <div>
+            <div class="plot"><svg viewBox="0 0 640 360" id="chargePlot"></svg></div>
+            <div class="panel" style="margin-top:14px">
+              <h3>Quick check</h3>
+              <p style="margin:0 0 8px">If charger power doubles from 1 MW to 2 MW, why might the break barely get shorter?</p>
+              <div class="options" id="chargeQuiz"></div>
+              <div class="fb" id="chargeFb"></div>
+            </div>
+          </div>
+        </div>
+        <div class="slideNav"><button onclick="goToSlide(4)">◀ Previous</button><button onclick="goToSlide(6)">Next ▶</button></div>
+      </div>
+
+      <div class="slide" id="slide-6">
+        <h2>7. Machines, drives and control</h2>
+        <div class="lead">Operating points link the vehicle calculation to the motor and control structure.</div>
+        <div class="cg2">
+          <div>
+            <div class="plot"><svg viewBox="0 0 640 360" id="torquePlot"></svg></div>
+            <div class="panel" style="margin-top:14px">
+              <h3>Operating points</h3>
+              <table>
+                <tr><th>Case</th><th>Wheel force</th><th>Power</th><th>Approx. motor point</th></tr>
+                <tr><td>Flat cruise</td><td id="opFlatForce"></td><td id="opFlatPower"></td><td id="opFlatMotor"></td></tr>
+                <tr><td>3% grade</td><td id="op3Force"></td><td id="op3Power"></td><td id="op3Motor"></td></tr>
+                <tr><td>12% start grade</td><td id="op12Force"></td><td>low speed</td><td id="op12Motor"></td></tr>
+              </table>
+            </div>
+          </div>
+          <div>
+            <div class="panel">
+              <h3>Nested control loops</h3>
+              <div class="flow">
+                <div class="node"><strong>Driver / cruise</strong><div class="t">seconds</div></div>
+                <div class="arr">→</div>
+                <div class="node"><strong>Supervisory energy management</strong><div class="t">~100 ms</div></div>
+                <div class="arr">→</div>
+                <div class="node"><strong>Traction / torque allocation</strong><div class="t">~10 ms</div></div>
+              </div>
+              <div class="flow" style="margin-top:10px">
+                <div class="node"><strong>FOC current control</strong><div class="t">~100 µs</div></div>
+                <div class="arr">→</div>
+                <div class="node"><strong>Inverter PWM</strong><div class="t">~50 µs</div></div>
+                <div class="arr">→</div>
+                <div class="node"><strong>E-machine / e-axle</strong><div class="t">torque at wheels</div></div>
+              </div>
+            </div>
+            <div class="panel" style="margin-top:14px">
+              <h3>Health-aware comparison</h3>
+              <table>
+                <tr><th>Truck</th><th>Condition</th><th>Implication</th></tr>
+                <tr><td>A</td><td>SoC 60%, SoH 95%, 25°C</td><td>full torque / full regen</td></tr>
+                <tr><td>B</td><td>SoC 60%, SoH 72%, 45°C</td><td>derated torque / derated charging</td></tr>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="slideNav"><button onclick="goToSlide(5)">◀ Previous</button><button onclick="goToSlide(7)">Next ▶</button></div>
+      </div>
+
+      <div class="slide" id="slide-7">
+        <h2>8. Engineering judgement and reflection</h2>
+        <div class="lead">Use the current assumptions to justify an architecture choice.</div>
+        <div class="cg2">
+          <div class="panel">
+            <h3>Current summary</h3>
+            <div class="metrics" style="grid-template-columns:repeat(2,1fr)">
+              <div class="metric"><div class="l">Battery demand</div><div class="v" id="sEnergy"></div><div class="c">per km</div></div>
+              <div class="metric"><div class="l">Break requirement</div><div class="v" id="sBreak"></div><div class="c">charging power</div></div>
+              <div class="metric"><div class="l">Payload effect</div><div class="v" id="sPayload"></div><div class="c">net vs diesel</div></div>
+              <div class="metric"><div class="l">Indicative choice</div><div class="v" style="font-size:20px">BEV baseline</div><div class="c">if MW charging exists</div></div>
+            </div>
+            <div style="margin-top:14px">
+              <span class="pill">cheap green H₂ could change the answer</span>
+              <span class="pill">no MW grid at stop could change the answer</span>
+              <span class="pill">higher pack specific energy could change the answer</span>
+              <span class="pill">charge thermal limits could change the answer</span>
+            </div>
+          </div>
+          <div class="panel">
+            <h3>Class prompts</h3>
+            <div style="margin-bottom:12px"><strong>Q1.</strong> A trailer kit reduces CdA by 20%. By roughly how much does total energy/km fall at 80 km/h?<div class="options" id="q1"></div><div class="fb" id="q1fb"></div></div>
+            <div style="margin-bottom:12px"><strong>Q2.</strong> Why does a fuel-cell truck still carry a battery?<div class="options" id="q2"></div><div class="fb" id="q2fb"></div></div>
+            <div><strong>Next step:</strong> Repeat the analysis for a 26 t urban delivery truck with 120 km/day, stop-start duty and depot charging overnight.</div>
+          </div>
+        </div>
+        <div class="slideNav"><button onclick="goToSlide(6)">◀ Previous</button><button disabled>Next ▶</button></div>
+      </div>
+    </section>
+  </div>
+</main>
+<script>
+const defaults={mass:40000,crr:0.006,cda:5.5,rho:1.2,speed:80,grade:0,eta:0.85,socWindow:0.8,specEnergy:0.15,missionKm:360,breakTime:45,dcBus:800};
+const slideTitles=['1 Opening','2 Road load','3 Force curves','4 Energy','5 Battery','6 Charging','7 Machines & control','8 Judgement'];
+let currentSlide=0; const ids=Object.keys(defaults);
+function el(x){return document.getElementById(x)}; function n(x,d=1){return Number(x).toFixed(d)}; function kmh2ms(v){return v/3.6}; function theta(g){return Math.atan(g/100)}; function kN(v){return n(v/1000,2)+' kN'}; function kW(v){return n(v/1000,0)+' kW'}; function t(kg){return n(kg/1000,1)+' t'};
+function vals(){const o={};ids.forEach(id=>o[id]=parseFloat(el(id).value));return o}
+function compute(){const v=vals(),g=9.81,th=theta(v.grade),ms=kmh2ms(v.speed); const Froll=v.mass*g*v.crr*Math.cos(th), Faero=0.5*v.rho*v.cda*ms*ms, Fgrad=v.mass*g*Math.sin(th), Ftotal=Froll+Faero+Fgrad, Pwheel=Ftotal*ms; const EwheelMJ=Ftotal/1000, EwheelkWh=EwheelMJ/3.6, EbattkWh=EwheelkWh/v.eta; const used=v.missionKm*EbattkWh, installed=used/v.socWindow, battMass=installed/v.specEnergy; const minPower=used/(v.breakTime/60), current=minPower*1000/v.dcBus, cRate=minPower/installed; const th1=theta(1), Fp1=v.mass*g*v.crr*Math.cos(th1)+0.5*v.rho*v.cda*ms*ms+v.mass*g*Math.sin(th1), Pp1=Fp1*ms; const Fflat=v.mass*g*v.crr+0.5*v.rho*v.cda*ms*ms, Pflat=Fflat*ms; const th3=theta(3), F3=v.mass*g*v.crr*Math.cos(th3)+0.5*v.rho*v.cda*ms*ms+v.mass*g*Math.sin(th3), P3=F3*ms; const th12=theta(12), F12=v.mass*g*v.crr*Math.cos(th12)+v.mass*g*Math.sin(th12); const wheelRadius=.5, gearRatio=20, motorRpm=ms/wheelRadius*gearRatio*60/(2*Math.PI), Tflat=Fflat*wheelRadius/gearRatio, T3=F3*wheelRadius/gearRatio, T12=F12*wheelRadius/gearRatio; return {...v,g,ms,Froll,Faero,Fgrad,Ftotal,Pwheel,EwheelMJ,EwheelkWh,EbattkWh,used,installed,battMass,minPower,current,cRate,Fp1,Pp1,Fflat,Pflat,F3,P3,F12,motorRpm,Tflat,T3,T12};}
+function labels(r){el('massVal').textContent=t(r.mass)+' ('+Math.round(r.mass).toLocaleString()+' kg)'; el('crrVal').textContent=n(r.crr,4); el('cdaVal').textContent=n(r.cda,1)+' m²'; el('rhoVal').textContent=n(r.rho,2)+' kg/m³'; el('speedVal').textContent=n(r.speed,0)+' km/h'; el('gradeVal').textContent=n(r.grade,1)+' %'; el('etaVal').textContent=n(r.eta,2); el('socWindowVal').textContent=Math.round(r.socWindow*100)+'%'; el('specEnergyVal').textContent=n(r.specEnergy,3)+' kWh/kg'; el('missionKmVal').textContent=n(r.missionKm,0)+' km'; el('breakTimeVal').textContent=n(r.breakTime,0)+' min'; el('dcBusVal').textContent=n(r.dcBus,0)+' V'; el('missionMini').textContent=n(r.missionKm,0)+' km';}
+function updateDOM(r){el('hookMass').textContent=t(r.mass); el('hookRange').textContent=n(r.missionKm,0)+' km'; el('hookSpeed').textContent=n(r.speed,0)+' km/h'; el('hookBreak').textContent=n(r.breakTime,0)+' min'; el('tRolling').textContent=kN(r.Froll); el('tAero').textContent=kN(r.Faero); el('tGrade').textContent=kN(r.Fgrad); el('tTotal').textContent=kN(r.Ftotal); el('arrGrade').style.display=r.grade>0?'block':'none'; const share=(r.Froll+r.Faero)||1; el('rollShare').textContent=n(100*r.Froll/share,0)+'%'; el('aeroShare').textContent=n(100*r.Faero/share,0)+'%'; el('wheelPower').textContent=kW(r.Pwheel); el('plus1Power').textContent=kW(r.Pp1); el('eForce').textContent=kN(r.Ftotal); el('ePower').textContent=kW(r.Pwheel); el('eWheelMJ').textContent=n(r.EwheelMJ,2)+' MJ/km'; el('eWheelkWh').textContent=n(r.EwheelkWh,2)+' kWh/km'; el('eBattkWh').textContent=n(r.EbattkWh,2)+' kWh/km'; el('dispWheelMJ').textContent=n(r.EwheelMJ,2)+' MJ/km'; el('dispWheelkWh').textContent=n(r.EwheelkWh,2)+' kWh/km'; el('dispBattkWh').textContent=n(r.EbattkWh,2)+' kWh/km'; el('mLeg').textContent=n(r.missionKm,0)+' km'; el('mUsed').textContent=n(r.used,0)+' kWh'; el('mInstalled').textContent=n(r.installed,0)+' kWh'; el('mMass').textContent=t(r.battMass); el('payBatt').textContent=t(r.battMass); const net=r.battMass+1000-2000; el('netPayload').textContent=(net>=0?'+':'')+t(net)+' net vs diesel'; el('cEnergy').textContent=n(r.used,0)+' kWh'; el('cPower').textContent=n(r.minPower,0)+' kW'; el('cCrate').textContent=n(r.cRate,2)+' C'; el('cCurrent').textContent=n(r.current,0)+' A @ '+n(r.dcBus,0)+' V'; el('opFlatForce').textContent=kN(r.Fflat); el('opFlatPower').textContent=kW(r.Pflat); el('opFlatMotor').textContent=n(r.Tflat,0)+' N·m @ ~'+n(r.motorRpm,0)+' rpm'; el('op3Force').textContent=kN(r.F3); el('op3Power').textContent=kW(r.P3); el('op3Motor').textContent=n(r.T3,0)+' N·m @ ~'+n(r.motorRpm,0)+' rpm'; el('op12Force').textContent=kN(r.F12); el('op12Motor').textContent=n(r.T12,0)+' N·m @ ~0 rpm'; el('sEnergy').textContent=n(r.EbattkWh,2)+' kWh/km'; el('sBreak').textContent=n(r.minPower/1000,2)+' MW'; el('sPayload').textContent=(net>=0?'+':'')+t(net);}
+function makeNav(){const nav=el('topNav');nav.innerHTML='';slideTitles.forEach((t,i)=>{const b=document.createElement('button');b.textContent=t;b.onclick=()=>goToSlide(i);if(i===currentSlide)b.classList.add('active');nav.appendChild(b)})}
+function goToSlide(i){currentSlide=i;document.querySelectorAll('.slide').forEach((s,idx)=>s.classList.toggle('active',idx===i));makeNav();window.scrollTo({top:0,behavior:'smooth'})}
+function resetDefaults(){ids.forEach(id=>el(id).value=defaults[id]);updateAll()}
+function axes(svg,x,y,w,h,xlabel,ylabel){svg.innerHTML='';const NS='http://www.w3.org/2000/svg';const A=(tag,attrs)=>{const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);svg.appendChild(e);return e};A('rect',{x:0,y:0,width:640,height:360,fill:'#fff'});A('line',{x1:x,y1:y+h,x2:x+w,y2:y+h,stroke:'#111','stroke-width':2});A('line',{x1:x,y1:y,x2:x,y2:y+h,stroke:'#111','stroke-width':2});let t=A('text',{x:x+w/2,y:340,'text-anchor':'middle',fill:'#555'});t.textContent=xlabel; t=A('text',{x:18,y:y+h/2,transform:'rotate(-90 18 '+(y+h/2)+')','text-anchor':'middle',fill:'#555'});t.textContent=ylabel; return {A,x,y,w,h}}
+function path(xs,ys,sx,sy,x0,y0){return xs.map((x,i)=>(i?'L':'M')+(x0+sx*x).toFixed(2)+' '+(y0-sy*ys[i]).toFixed(2)).join(' ')}
+function drawForce(r){const svg=el('forcePlot'),c=axes(svg,60,20,540,280,'Speed (km/h)','Force (kN)'); const sp=[],roll=[],aero=[],grade=[],tot=[]; for(let v=0;v<=110;v+=5){const ms=kmh2ms(v),th=theta(r.grade); const Fr=r.mass*r.g*r.crr*Math.cos(th)/1000, Fa=0.5*r.rho*r.cda*ms*ms/1000, Fg=r.mass*r.g*Math.sin(th)/1000; sp.push(v); roll.push(Fr); aero.push(Fa); grade.push(Fg); tot.push(Fr+Fa+Fg)} const ymax=Math.max(...tot)*1.15+.5, sx=c.w/110, sy=c.h/ymax; for(let k=0;k<=5;k++){const val=ymax*k/5, yy=c.y+c.h-sy*val; c.A('line',{x1:c.x,y1:yy,x2:c.x+c.w,y2:yy,stroke:'#e5e7eb'}); let t=c.A('text',{x:50,y:yy+4,'text-anchor':'end',fill:'#666','font-size':12}); t.textContent=val.toFixed(1)} for(let v=0;v<=110;v+=20){const xx=c.x+sx*v; c.A('line',{x1:xx,y1:c.y+c.h,x2:xx,y2:c.y+c.h+5,stroke:'#111'}); let t=c.A('text',{x:xx,y:318,'text-anchor':'middle',fill:'#666','font-size':12}); t.textContent=v} ; [{a:roll,col:'#0f766e'},{a:aero,col:'#4338ca'},{a:grade,col:'#c2410c'},{a:tot,col:'#d50032'}].forEach(s=>c.A('path',{d:path(sp,s.a,sx,sy,c.x,c.y+c.h),fill:'none',stroke:s.col,'stroke-width':3})); const cx=c.x+sx*r.speed, cy=c.y+c.h-sy*(r.Ftotal/1000); c.A('circle',{cx,cy,r:5,fill:'#111'}); let t=c.A('text',{x:cx+8,y:cy-8,fill:'#111','font-size':12}); t.textContent='current'; [['Rolling','#0f766e'],['Aero','#4338ca'],['Gradient','#c2410c'],['Total','#d50032']].forEach((l,i)=>{c.A('rect',{x:70+i*120,y:12,width:14,height:14,fill:l[1],rx:3}); let tt=c.A('text',{x:90+i*120,y:24,fill:'#555','font-size':12}); tt.textContent=l[0]})}
+function drawBattery(r){const svg=el('batteryPlot'),c=axes(svg,60,20,540,280,'Range between charges (km)','Battery mass (t)'); const xs=[100,200,300,400,500,600,800], ys=xs.map(km=>((km*r.EbattkWh)/r.socWindow/r.specEnergy)/1000), ymax=Math.max(...ys)*1.15, sx=c.w/800, sy=c.h/ymax; for(let k=0;k<=5;k++){const val=ymax*k/5, yy=c.y+c.h-sy*val; c.A('line',{x1:c.x,y1:yy,x2:c.x+c.w,y2:yy,stroke:'#e5e7eb'}); let t=c.A('text',{x:50,y:yy+4,'text-anchor':'end',fill:'#666','font-size':12}); t.textContent=val.toFixed(1)} xs.forEach((x,i)=>{const xx=c.x+sx*x, yy=c.y+c.h-sy*ys[i]; if(i>0){const px=c.x+sx*xs[i-1], py=c.y+c.h-sy*ys[i-1]; c.A('line',{x1:px,y1:py,x2:xx,y2:yy,stroke:'#d50032','stroke-width':3})} c.A('circle',{cx:xx,cy:yy,r:5,fill:'#d50032'}); let t=c.A('text',{x:xx,y:yy-10,'text-anchor':'middle',fill:'#333','font-size':12}); t.textContent=ys[i].toFixed(1); let xb=c.A('text',{x:xx,y:318,'text-anchor':'middle',fill:'#666','font-size':12}); xb.textContent=x}); const cx=c.x+sx*r.missionKm, cy=c.y+c.h-sy*(r.battMass/1000); c.A('circle',{cx,cy,r:7,fill:'#111'}); let t=c.A('text',{x:cx+10,y:cy-10,fill:'#111','font-size':12}); t.textContent='current design';}
+function drawCharge(r){const svg=el('chargePlot'),c=axes(svg,60,20,540,280,'Charger power','Time to add mission energy (min)'); const p=[150,350,1000,1500], lbl=['150 kW','350 kW','1 MW','1.5 MW'], tm=p.map(x=>r.used/x*60), ymax=Math.max(...tm)*1.15, bw=80; for(let k=0;k<=5;k++){const val=ymax*k/5, yy=c.y+c.h-(c.h/ymax)*val; c.A('line',{x1:c.x,y1:yy,x2:c.x+c.w,y2:yy,stroke:'#e5e7eb'}); let t=c.A('text',{x:50,y:yy+4,'text-anchor':'end',fill:'#666','font-size':12}); t.textContent=val.toFixed(0)} p.forEach((pp,i)=>{const x=100+i*125, h=c.h*(tm[i]/ymax), y=c.y+c.h-h, good=tm[i]<=r.breakTime; c.A('rect',{x,y,width:bw,height:h,fill:good?'#0f766e':'#94a3b8',rx:5}); let t=c.A('text',{x:x+bw/2,y:y-8,'text-anchor':'middle',fill:'#333','font-size':12}); t.textContent=tm[i].toFixed(0); let xb=c.A('text',{x:x+bw/2,y:318,'text-anchor':'middle',fill:'#666','font-size':12}); xb.textContent=lbl[i]}); const ly=c.y+c.h-c.h*(r.breakTime/ymax); c.A('line',{x1:c.x,y1:ly,x2:c.x+c.w,y2:ly,stroke:'#d50032','stroke-width':2,'stroke-dasharray':'6 4'}); let t=c.A('text',{x:c.x+c.w-10,y:ly-8,'text-anchor':'end',fill:'#d50032','font-size':12}); t.textContent='break';}
+function drawTorque(r){const svg=el('torquePlot'),c=axes(svg,60,20,540,280,'Motor speed (rpm)','Motor torque (N·m)'); const base=2500, max=10000, peak=Math.max(1200,r.T12*1.02), cont=peak*.58, sx=c.w/max, sy=c.h/(peak*1.15); for(let k=0;k<=5;k++){const val=(peak*1.15)*k/5, yy=c.y+c.h-sy*val; c.A('line',{x1:c.x,y1:yy,x2:c.x+c.w,y2:yy,stroke:'#e5e7eb'}); let t=c.A('text',{x:50,y:yy+4,'text-anchor':'end',fill:'#666','font-size':12}); t.textContent=val.toFixed(0)} for(let v=0;v<=10000;v+=2000){const xx=c.x+sx*v; c.A('line',{x1:xx,y1:c.y+c.h,x2:xx,y2:c.y+c.h+5,stroke:'#111'}); let t=c.A('text',{x:xx,y:318,'text-anchor':'middle',fill:'#666','font-size':12}); t.textContent=(v/1000)+'k'} const d1='M '+(c.x)+' '+(c.y+c.h-sy*peak)+' L '+(c.x+sx*base)+' '+(c.y+c.h-sy*peak)+' L '+(c.x+sx*10000)+' '+(c.y+c.h-sy*(peak*base/10000)); c.A('path',{d:d1,fill:'none',stroke:'#d50032','stroke-width':4}); const d2='M '+(c.x)+' '+(c.y+c.h-sy*cont)+' L '+(c.x+sx*base)+' '+(c.y+c.h-sy*cont)+' L '+(c.x+sx*10000)+' '+(c.y+c.h-sy*(cont*base/10000)); c.A('path',{d:d2,fill:'none',stroke:'#475569','stroke-width':4,'stroke-dasharray':'8 6'}); [{rpm:r.motorRpm,tq:r.Tflat,col:'#0f766e',lab:'flat cruise'},{rpm:r.motorRpm,tq:r.T3,col:'#c2410c',lab:'3% grade'},{rpm:0,tq:r.T12,col:'#4338ca',lab:'12% start'}].forEach(o=>{const cx=c.x+sx*o.rpm, cy=c.y+c.h-sy*o.tq; c.A('circle',{cx,cy,r:7,fill:o.col}); let t=c.A('text',{x:cx+8,y:cy-8,fill:o.col,'font-size':12}); t.textContent=o.lab}); c.A('line',{x1:c.x+sx*base,y1:c.y,x2:c.x+sx*base,y2:c.y+c.h,stroke:'#94a3b8','stroke-dasharray':'5 5'}); let t=c.A('text',{x:c.x+sx*base+4,y:c.y+c.h-8,fill:'#666','font-size':12}); t.textContent='base speed'; c.A('rect',{x:75,y:12,width:14,height:14,fill:'#d50032',rx:3}); t=c.A('text',{x:95,y:24,fill:'#555','font-size':12}); t.textContent='peak'; c.A('line',{x1:160,y1:20,x2:190,y2:20,stroke:'#475569','stroke-width':4,'stroke-dasharray':'8 6'}); t=c.A('text',{x:200,y:24,fill:'#555','font-size':12}); t.textContent='continuous';}
+function quiz(id,opts,correct,fbId,msg){const c=el(id); c.innerHTML=''; opts.forEach((o,i)=>{const d=document.createElement('div'); d.className='option'; d.textContent=o; d.onclick=()=>{[...c.children].forEach(x=>x.classList.remove('selected')); d.classList.add('selected'); el(fbId).textContent=(i===correct?'✓ ':'✗ ')+msg}; c.appendChild(d)})}
+function updateAll(){const r=compute(); labels(r); updateDOM(r); drawForce(r); drawBattery(r); drawCharge(r); drawTorque(r); makeNav()}
+ids.forEach(id=>el(id).addEventListener('input',updateAll)); quiz('chargeQuiz',['Connector limit only','Battery C-rate / thermal limits become bottlenecks','Truck weight increases while charging'],1,'chargeFb','Once charger power is high enough, battery limits, thermal limits and grid connection can become the real bottlenecks.'); quiz('q1',['20%','≈ 8%','≈ 2%'],1,'q1fb','Only the aerodynamic part reduces, so the total energy/km falls by much less than 20%.'); quiz('q2',['For transients, regenerative braking and stack-life protection','Only to start the stack','Because the truck cannot move without a large traction battery'],0,'q2fb','The battery buffers transients, absorbs regenerative energy and protects the fuel-cell stack from fast power fluctuations.'); updateAll();
+</script>
+</body>
+</html>
